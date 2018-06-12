@@ -23,6 +23,8 @@ Modules:
 	Builds report from one of the templates
 -DeliverReports.py - Class
 	Sends reports to appropriate parties	
+=Classes
+	-JuryRecord.py - contains the interface for sorting data for a particular jury
 =Templates
 	-studentReports.py - Class
 		Template Class associated with a studentReport

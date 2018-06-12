@@ -1,0 +1,40 @@
+Packages to Use:
+-jinja
+-pandas
+-numpy
+
+Modules:
+-setup.py
+	Installs Package and all Requirements
+-main.py
+	On application start, runs authentication
+	Contains functions:
+		buildUI(uiOptions)
+		importData(importOptions)
+		buildReports(buildOptions))
+		deliverReports(deliveryOptions)
+-UI.py - Class
+	Lightweight GUI for main
+-Authenticate.py - Class
+	Connects to data source
+-ImportData.py - Class
+	Pulls all current data for analysis
+-BuildReports.py - Class
+	Builds report from one of the templates
+-DeliverReports.py - Class
+	Sends reports to appropriate parties	
+=Templates
+	-studentReports.py - Class
+		Template Class associated with a studentReport
+	-learningOutcomeAssessment.py - Class
+		Template Class associated with a LOAreport
+	-areaDirectorReports.py - Class
+		Template Class associated with a collection of student reports for a given area director
+	=HTML
+		-studentReport.html
+		-learningOutcomeAssessment.html
+=Tests
+	-test_Authentication.py
+	-test_studentReport.py
+	-test_learningOutcomeAssessment.py
+	-test_deliverReports.py

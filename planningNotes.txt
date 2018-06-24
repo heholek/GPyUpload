@@ -1,7 +1,9 @@
+Notes to Self:
+-Stopped in the middle of testing authentication protocol for Drive
+
 Packages to Use:
 -jinja
--pandas
--numpy
+-google-api-python-client
 
 Modules:
 -setup.py
@@ -19,6 +21,7 @@ Modules:
 	Lightweight GUI for main
 -Authenticate.py - Class
 	Connects to data source
+	Contains links to the appropriate spreadsheets that contain data
 -ImportData.py - Class
 	Pulls all current data for analysis
 -BuildReports.py - Class

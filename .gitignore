@@ -1,1 +1,8 @@
+# setup.py will establish a credentials json file on the local filesystem.
+# The next line ensures git ignores that directory. DO NOT REMOVE--storing
+# credientials json files on github is highly inadvisable
 creds/
+
+# VirtualEnvironment Folder
+JurySystem/
+/.gtm/

@@ -3,7 +3,9 @@ from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
 
-class Authenticate():
+CREDENTIALS_PATH = '../creds/client_secret.json'
+
+class Authenticator():
     """
     Authentication object which connects to Google Services
 
@@ -23,18 +25,18 @@ class Authenticate():
         """
         Locates Credentials file on local filesystem
         """
-        creds = '/creds/client_secret.json'
+        creds = CREDENTIALS_PATH
 
-    def authenticateGoogle(self, CREDS_PATH):
+    def authenticateGoogle(self, credentials_path):
         """
         Establishes connection to Google services.
 
         Parameters:
-            -CREDS_PATH - Path to the secure credentials json file 
+            -credentials_path - Path to the secure credentials json file 
         """
         #Authorize the application to use Google APIs for Drive and Sheets.
         scopes = ['https://www.googleapis.com/auth/drive.metadata.readonly','https://www.googleapis.com/auth/spreadsheets.readonly']
-        store = file.Storage(CREDS_PATH)
+        store = file.Storage(credentials_path)
         creds = store.get()
         if not creds or creds.invalid:
             flow = client.flow_from_clientsecrets(CREDS_PATH, scopes)
@@ -51,7 +53,7 @@ class Authenticate():
 
         #Sheets
         try:
-            result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range='A1:A1').execute()
-        except e:
+            result = self.service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range='A1:A1').execute()
+        except Exception as e:
             print(e)
 

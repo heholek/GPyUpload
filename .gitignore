@@ -2,6 +2,7 @@
 # The next line ensures git ignores that directory. DO NOT REMOVE--storing
 # credientials json files on github is highly inadvisable
 creds/
+__pycache__/
 
 # VirtualEnvironment Folder
 JurySystem/

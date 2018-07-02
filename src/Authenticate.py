@@ -13,35 +13,42 @@ class Authenticator():
         -service - Connection to Google APIs
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, alternate_creds_path=None):
+        if alternate_creds_path != None:
+            # Lets user overload the credentials Global Variable set at the
+            # top of this file
+            self.credentials_path = alternate_creds_path
+        else:
+            # Default behavior
+            self.credentials_path = CREDENTIALS_PATH
 
     def connect(self):
         self.loadCredentials()
-        self.authenticateGoogle()
+        self.buildService()
         self.testConnection()
 
     def loadCredentials(self):
         """
-        Locates Credentials file on local filesystem
+        Loads credentials file through oauth2client. See Google API
+        Quickstarts for Python for more details
         """
-        creds = CREDENTIALS_PATH
-
-    def authenticateGoogle(self, credentials_path):
-        """
-        Establishes connection to Google services.
-
-        Parameters:
-            -credentials_path - Path to the secure credentials json file 
-        """
-        #Authorize the application to use Google APIs for Drive and Sheets.
-        scopes = ['https://www.googleapis.com/auth/drive.metadata.readonly','https://www.googleapis.com/auth/spreadsheets.readonly']
-        store = file.Storage(credentials_path)
+        # Authorize the application to use Google APIs for Drive and Sheets.
+        # First scope is for drive, second is sheets
+        scopes = ['https://www.googleapis.com/auth/drive.metadata.readonly',
+                  'https://www.googleapis.com/auth/spreadsheets.readonly']
+        store = file.Storage(self.credentials_path)
         creds = store.get()
         if not creds or creds.invalid:
-            flow = client.flow_from_clientsecrets(CREDS_PATH, scopes)
-            creds = tools.run_flow(flow, store)
-        self.service = build('drive', 'v3', http=creds.authorize(Http()))
+            flow = client.flow_from_clientsecrets(self.credentials_path,
+                                                  scopes)
+            self.creds = tools.run_flow(flow, store)
+
+    def buildService(self):
+        """
+        Establishes connection to Google services.
+        """
+        self.driveService = build('drive', 'v3', http=self.creds.authorize(Http()))
+        self.sheetsService = build('sheets', 'v4', http=self.creds.authorize(Http()))
 
     def testConnection(self):
         """
@@ -53,7 +60,9 @@ class Authenticator():
 
         #Sheets
         try:
-            result = self.service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range='A1:A1').execute()
+            spreadsheet_service = self.sheetsService.spreadsheets()
+            values = spreadsheet_service.values()
+            result = values.get(spreadsheetId=SPREADSHEET_ID, range='A1:A1')
+            result.execute()
         except Exception as e:
             print(e)
-

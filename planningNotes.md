@@ -1,5 +1,5 @@
 ## Notes to Self:
-* Stopped in the middle of testing authentication protocol for Drive
+* Stopped in the middle of testing authentication protocol for Sheets, need to replace oauth2client with google-auth
 
 ## Packages to Use:
 * jinja

@@ -1,38 +1,33 @@
-import google.auth
+"""
+Contains class Authenticator which connects to Google Resources
+"""
+
+#import google.auth
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
-
-SPREADSHEET_ID = '1ptY3qjZGlV7YpQDGm1ouObGHdOGsKSzT2CKA6gNTDPU'
-CREDENTIALS_PATH = '../creds/client.json'
-FOLDER_ID = '0ALe3WEFbwDkxUk9PVA'
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets',
-          'https://www.googleapis.com/auth/drive']
+import config
 
 class Authenticator():
     """
     Authentication object which connects to Google Services
 
     Attributes:
-        -service - Connection to Google APIs
+        self.authsession - Requests session for connecting to Google API
     """
 
-    def __init__(self, alternate_creds_path=None):
+    def __init__(self, creds_path_arg=None,
+                       scopes_arg=None,
+                       requests_arg=None):
         """
         Initialize an Authenticator Object which can run REST requests against
         the Google APIs
         """
         #TODO - Load constants in a .yml rather than declaring above
-        if alternate_creds_path != None:
-            # Lets user overload the credentials Global Variable set at the
-            # top of this file
-            self.credentials_path = alternate_creds_path
-        else:
-            # Default behavior
-            self.credentials_path = CREDENTIALS_PATH
+        self.credentials_path = creds_path_arg
         # First scope is for drive, second is sheets
-        self.scopes = SCOPES
+        self.scopes = scopes_arg
         self.authsession = None # Need to run self.connect() to create session
-        self.requests = {}
+        self.requests = requests_arg
 
     ###########################################################################
     # MAIN INTERFACE METHODS
@@ -44,17 +39,17 @@ class Authenticator():
     # You can always overload the default request "None" in the method call if
     # the particular method has not yet been implemented in buildRequests()
 
-    def make_get_request(self, request=None):
+    def make_get_request(self, request=None, payload=None):
         """
         Allow user to make a GET request
         """
-        return self.authsession.get(request)
+        return self.authsession.get(request, params=payload)
 
-    def make_put_request(self, request=None):
+    def make_put_request(self, request=None, payload=None):
         """
         Allow user to make a PUT request
         """
-        return self.authsession.put(request)
+        return self.authsession.put(request, params=payload)
 
     ###########################################################################
     # UTILITY AND MISC METHODS
@@ -65,6 +60,7 @@ class Authenticator():
         """
         self.load_credentials()
         self.build_requests()
+        return self.authsession
 
     def load_credentials(self):
         """

@@ -5,7 +5,6 @@ Contains class Authenticator which connects to Google Resources
 #import google.auth
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
-import config
 
 class Authenticator():
     """
@@ -16,18 +15,18 @@ class Authenticator():
     """
 
     def __init__(self, creds_path_arg=None,
-                       scopes_arg=None,
-                       requests_arg=None):
+                 scopes_arg=None):
         """
         Initialize an Authenticator Object which can run REST requests against
         the Google APIs
         """
         #TODO - Load constants in a .yml rather than declaring above
         self.credentials_path = creds_path_arg
-        # First scope is for drive, second is sheets
-        self.scopes = scopes_arg
+        self.scopes = []
+        scope_dict = scopes_arg
+        for key, value in scopes_arg.items():
+            self.scopes.append(value)
         self.authsession = None # Need to run self.connect() to create session
-        self.requests = requests_arg
 
     ###########################################################################
     # MAIN INTERFACE METHODS
@@ -59,7 +58,6 @@ class Authenticator():
         Loads credentials file and builds dictionary of requests
         """
         self.load_credentials()
-        self.build_requests()
         return self.authsession
 
     def load_credentials(self):
@@ -74,16 +72,3 @@ class Authenticator():
         creds = temp.with_scopes(self.scopes)
         self.authsession = AuthorizedSession(creds)
 
-    def build_requests(self):
-        """
-        Establishes connections to Google services.
-
-        #TODO: Return to this method and build up a dictionary of useful
-        requests to make, store these in a yml file
-        """
-        pass
-        ##EXAMPLES##
-        #get_main_spreadsheet = ('https://sheets.googleapis.com/v4/' +
-        #                             'spreadsheets/' + MAIN_SPREADSHEET_ID)
-        #drive_session_get = ('https://www.googleapis.com/drive/v3/' +
-        #                          'files/' + FOLDER_ID)

@@ -5,18 +5,28 @@ execution. TODO: Get this darned thing into a nosetest suite, stat
 
 import google.auth
 import src.authenticate
-import src.config
+import src.configuration
 import src.utils.files as files
+import main
 
 AuthsessionClass = google.auth.transport.requests.AuthorizedSession
 
-def set_up():
+def set_up_auth():
     """
-    Create resources for testing
+    Create auth resources for testing
     """
     creds_path = files.full_path('creds/client.json')
-    auth = src.authenticate.Authenticator(alternate_creds_path=creds_path)
+    scopes = {'test': 'https://www.googleapis.com/auth/drive.readonly'}
+    auth = src.authenticate.Authenticator(creds_path_arg=creds_path,
+                                          scopes_arg=scopes)
     return auth
+
+def set_up_config():
+    """
+    Create auth resources for testing
+    """
+    config_path = files.full_path('utils/config.yaml')
+    return src.configuration.Configuration(config_path=config_path)
 
 def test_authenticator_type(auth):
     """
@@ -41,13 +51,33 @@ def test_authenticator_connection(auth):
     assert result.json()['user']['kind'] == 'drive#user'
     return result
 
-def test_load_config():
-    config_path = files.full_path('utils/config.yaml')
-    config_settings = src.config.load_config(config_path)
+def test_get_config_from_instance(config):
+    """
+    Tries to load config file from instance when it was generated in setup
+    """
+    config_settings = config.get_config()
     assert isinstance(config_settings, dict)
+    return config_settings
+
+def test_get_config_from_arg(config):
+    """
+    Tries to load config file from argument passed directly to load method
+    """
+    config_path = files.full_path('utils/config.yaml')
+    config_settings = config.get_config(path=config_path)
+    assert isinstance(config_settings, dict)
+    return config_settings
+
+def test_main_connected():
+    app = main.EvaluationsApp()
+    app.auth.connect()
+    print('Main Script Connected')
 
 if __name__ == "__main__":
-    A = set_up()
+    A = set_up_auth()
+    C = set_up_config()
     test_authenticator_type(A)
     test_authenticator_connection(A)
-    test_load_config()
+    test_get_config_from_instance(C)
+    test_get_config_from_arg(C)
+    test_main_connected()

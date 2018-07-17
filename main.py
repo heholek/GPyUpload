@@ -29,6 +29,7 @@ class App():
             if config_file.is_file():
                 print('Found config file, loading...')
                 self.config = c.Configuration(config_path, app=weakref.ref(self))
+            else:
         except OSError:
             try:
                 print('No config file found, installing...')
@@ -36,6 +37,9 @@ class App():
             except:
                 print('Something went wrong loading the configuration')
                 sys.exit()
+        except:
+            print('Something went wrong loading the configuration')
+            sys.exit()
         self.config.load_config()
         print('Configuration Loaded')
         self.auth = a.Authenticator(self.config.config['creds_path'],

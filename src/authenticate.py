@@ -15,7 +15,7 @@ class Authenticator():
     """
 
     def __init__(self, creds_path_arg=None,
-                 scopes_arg=None):
+                 scopes_arg=None, app=None):
         """
         Initialize an Authenticator Object which can run REST requests against
         the Google APIs
@@ -23,6 +23,7 @@ class Authenticator():
         #TODO - Load constants in a .yml rather than declaring above
         self.credentials_path = creds_path_arg
         self.scopes = []
+        self.app = app
         scope_dict = scopes_arg
         for key, value in scopes_arg.items():
             self.scopes.append(value)
@@ -71,4 +72,3 @@ class Authenticator():
             self.credentials_path)
         creds = temp.with_scopes(self.scopes)
         self.authsession = AuthorizedSession(creds)
-

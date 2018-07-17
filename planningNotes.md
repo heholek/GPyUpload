@@ -1,5 +1,6 @@
 ## Notes to Self:
-* Stopped in the middle of testing authentication protocol for Sheets, need to replace oauth2client with google-auth
+* Need to figure out how to grant permissions to edit files in team drive
+  without link-sharing the file to the public
 
 ## Packages to Use:
 * jinja

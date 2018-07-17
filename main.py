@@ -8,32 +8,31 @@ import os
 import src.UI
 import src.authenticate as a
 import src.configuration as c
+import src.importer as i
 import src.requests as r
-import src.utils.files as files
+import src.util as util
+import weakref
 print("Imports Successful")
 
-class EvaluationsApp():
+class App():
 
     def __init__(self):
-        self.allRecords = [] #This list will contain all imported records
         ###Right now passing config_path to instance of configuration
         ###When installing, make a step to set an environment variable for this
-        config_path = files.full_path('utils/config.yaml')
-        self.config = c.Configuration(config_path)
+        pass
+
+    def register_classes(self):
+        config_path = util.full_path('src/config/main.yaml')
+        self.config = c.Configuration(config_path, app=weakref.ref(self))
         self.config.load_config()
         print('Configuration Loaded')
         self.auth = a.Authenticator(self.config.config['creds_path'],
-                                    self.config.config['scopes'])
+                                    self.config.config['scopes'],
+                                    app=weakref.ref(self))
         self.auth.connect()
-        prefixes_path = files.full_path('utils/request_prefixes.yaml')
-        self.requests = r.Requests(prefixes_path)
+        prefixes_path = util.full_path('src/config/request_prefixes.yaml')
+        self.requests = r.Requests(prefixes_path, app=weakref.ref(self))
         self.requests.build_base_requests(self.config.config['files'])
-
-    def authenticate(self, authenticationOptions):
-        """
-        Establishes secure connection to datasource
-        """
-        self.authenticator = auth.Authenticator()
 
     def buildUI(self, uiOptions):
         """
@@ -45,7 +44,8 @@ class EvaluationsApp():
         """
         Pulls remote data for reporting, stores it internally as a list of JuryRecord objects
         """
-        self.sheet = self.auth.make_get_request(self.requests.requests['MainSheet'])
+        self.importer = i.Importer(self.config.config['files'],
+                                   app=weakref.ref(self))
 
     def buildReports(self, buildOptions):
         """

@@ -2,7 +2,8 @@ import yaml
 
 class Requests():
 
-    def __init__(self, path):
+    def __init__(self, path, app):
+        self.app = app
         try:
             stream = open(path)
         except:

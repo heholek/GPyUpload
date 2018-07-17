@@ -10,7 +10,8 @@ import yaml
 
 class Configuration():
 
-    def __init__(self, config_path=None):
+    def __init__(self, config_path=None, app=None):
+        self.app = app
         if config_path == None:
             try:
                 self.path = os.environ['GPYREPORT_CONFIG_PATH']

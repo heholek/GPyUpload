@@ -6,7 +6,7 @@ execution. TODO: Get this darned thing into a nosetest suite, stat
 import google.auth
 import src.authenticate
 import src.configuration
-import src.utils.files as files
+import src.util as util
 import main
 
 AuthsessionClass = google.auth.transport.requests.AuthorizedSession
@@ -15,7 +15,7 @@ def set_up_auth():
     """
     Create auth resources for testing
     """
-    creds_path = files.full_path('creds/client.json')
+    creds_path = util.full_path('src/creds/client.json')
     scopes = {'test': 'https://www.googleapis.com/auth/drive.readonly'}
     auth = src.authenticate.Authenticator(creds_path_arg=creds_path,
                                           scopes_arg=scopes)
@@ -25,7 +25,7 @@ def set_up_config():
     """
     Create auth resources for testing
     """
-    config_path = files.full_path('utils/config.yaml')
+    config_path = util.full_path('src/config/main.yaml')
     return src.configuration.Configuration(config_path=config_path)
 
 def test_authenticator_type(auth):
@@ -63,13 +63,14 @@ def test_get_config_from_arg(config):
     """
     Tries to load config file from argument passed directly to load method
     """
-    config_path = files.full_path('utils/config.yaml')
+    config_path = util.full_path('src/config/main.yaml')
     config_settings = config.get_config(path=config_path)
     assert isinstance(config_settings, dict)
     return config_settings
 
 def test_main_connected():
-    app = main.EvaluationsApp()
+    app = main.App()
+    app.register_classes()
     app.auth.connect()
     print('Main Script Connected')
 

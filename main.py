@@ -5,6 +5,7 @@ Entrypoint and primary class for the application
 """
 import sys
 import os
+import pathlib as p
 import src.UI
 import src.authenticate as a
 import src.configuration as c
@@ -23,7 +24,18 @@ class App():
 
     def register_classes(self):
         config_path = util.full_path('src/config/main.yaml')
-        self.config = c.Configuration(config_path, app=weakref.ref(self))
+        config_file = p.Path(config_path)
+        try:
+            if config_file.is_file():
+                print('Found config file, loading...')
+                self.config = c.Configuration(config_path, app=weakref.ref(self))
+        except OSError:
+            try:
+                print('No config file found, installing...')
+                self.config = c.Configuration(install=True)
+            except:
+                print('Something went wrong loading the configuration')
+                sys.exit()
         self.config.load_config()
         print('Configuration Loaded')
         self.auth = a.Authenticator(self.config.config['creds_path'],

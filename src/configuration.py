@@ -10,18 +10,22 @@ import yaml
 
 class Configuration():
 
-    def __init__(self, config_path=None, app=None):
+    def __init__(self, config_path=None, app=None, install=False):
         self.app = app
-        if config_path == None:
-            try:
-                self.path = os.environ['GPYREPORT_CONFIG_PATH']
-            except KeyError:
-                print('''Be sure to set your environment variable for
-                      GPYREPORT_CONFIG_PATH. This usually occurs during
-                      installation.''')
-                sys.exit()
+        if install:
+            os.makedirs('config') 
+            os.makefile('main.yaml')
         else:
-            self.path = config_path
+            if config_path == None:
+                try:
+                    self.path = os.environ['GPYREPORT_CONFIG_PATH']
+                except KeyError:
+                    print('''Be sure to set your environment variable for
+                          GPYREPORT_CONFIG_PATH. This usually occurs during
+                          installation.''')
+                    sys.exit()
+            else:
+                self.path = config_path
     ###############################################################################
     # INSTALLATION METHODS
     ###############################################################################

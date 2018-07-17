@@ -3,6 +3,7 @@ Contains class Authenticator which connects to Google Resources
 """
 
 #import google.auth
+import json
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
 
@@ -15,13 +16,19 @@ class Authenticator():
     """
 
     def __init__(self, creds_path_arg=None,
-                 scopes_arg=None, app=None):
+                 scopes_arg=None, app=None,
+                 creds_arg=None):
         """
         Initialize an Authenticator Object which can run REST requests against
         the Google APIs
         """
         #TODO - Load constants in a .yml rather than declaring above
-        self.credentials_path = creds_path_arg
+        if creds_arg == None:
+            self.credentials_path = creds_path_arg
+            self.credentials_json = None
+        else:
+            self.credentials_json = json.loads(creds_arg)
+            self.credentials_path = None
         self.scopes = []
         self.app = app
         scope_dict = scopes_arg
@@ -68,7 +75,11 @@ class Authenticator():
         outdated and the oauth2client support is depricated
         """
         # Authorize the application to use Google APIs for Drive and Sheets.
-        temp = service_account.Credentials.from_service_account_file(
-            self.credentials_path)
+        if self.credentials_json == None:
+            temp = service_account.Credentials.from_service_account_file(
+                self.credentials_path)
+        elif self.credentials_path == None:
+            temp = service_account.Credentials.from_service_account_info(
+                self.credentials_json)
         creds = temp.with_scopes(self.scopes)
         self.authsession = AuthorizedSession(creds)

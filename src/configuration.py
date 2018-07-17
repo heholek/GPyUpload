@@ -10,22 +10,31 @@ import yaml
 
 class Configuration():
 
-    def __init__(self, config_path=None, app=None, install=False):
+    def __init__(self, config_path=None, app=None, install=False,
+                 config_arg=None):
         self.app = app
-        if install:
-            os.makedirs('config') 
-            os.makefile('main.yaml')
-        else:
-            if config_path == None:
-                try:
-                    self.path = os.environ['GPYREPORT_CONFIG_PATH']
-                except KeyError:
-                    print('''Be sure to set your environment variable for
-                          GPYREPORT_CONFIG_PATH. This usually occurs during
-                          installation.''')
-                    sys.exit()
+        if config_arg == None:
+            self.config_json = None
+            if install:
+                os.makedirs('config')
+                os.makefile('main.yaml')
             else:
-                self.path = config_path
+                if config_path == None:
+                    try:
+                        self.path = os.environ['GPYREPORT_CONFIG_PATH']
+                    except KeyError:
+                        print('''Be sure to set your environment variable for
+                              GPYREPORT_CONFIG_PATH. This usually occurs during
+                              installation.''')
+                        sys.exit()
+                else:
+                    self.path = config_path
+                    self.loaded = False
+        else:
+            self.config = yaml.load(config_arg)
+            self.config_path = None
+            self.loaded = True
+
     ###############################################################################
     # INSTALLATION METHODS
     ###############################################################################
@@ -45,7 +54,10 @@ class Configuration():
         Return config file, passed the file's path
         """
         try:
-            return self.load_config(**kwargs)
+            if not self.loaded:
+                return self.load_config(**kwargs)
+            else:
+                return self.config
         except TypeError:
             print('''Load Config didn't get a proper path. Make sure to either
                   pass a path directly to the method or set the environment

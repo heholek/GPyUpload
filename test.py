@@ -3,6 +3,7 @@ This single script gathers all the Class tests and prepares them for
 execution. TODO: Get this darned thing into a nosetest suite, stat
 """
 
+import os
 import google.auth
 import src.authenticate
 import src.configuration
@@ -11,22 +12,34 @@ import main
 
 AuthsessionClass = google.auth.transport.requests.AuthorizedSession
 
+TEST_ENVIRONMENT = os.environ['GPYREPORT_TEST_ENVIRONMENT']
+if TEST_ENVIRONMENT == 'local':
+    CREDS_PATH = util.full_path('src/creds/client.json')
+    CONFIG_PATH = util.full_path('src/config/main.yaml')
+    CREDS = None
+    CONFIG = None
+elif TEST_ENVIRONMENT == 'ci':
+    CREDS_PATH = None
+    CONFIG_PATH = None
+    CREDS = os.environ['GPYREPORT_TEST_SECURE_ONE']
+    CONFIG = os.environ['GPYREPORT_TEST_SECURE_TWO']
+
 def set_up_auth():
     """
     Create auth resources for testing
     """
-    creds_path = util.full_path('src/creds/client.json')
     scopes = {'test': 'https://www.googleapis.com/auth/drive.readonly'}
-    auth = src.authenticate.Authenticator(creds_path_arg=creds_path,
-                                          scopes_arg=scopes)
+    auth = src.authenticate.Authenticator(creds_path_arg=CREDS_PATH,
+                                          scopes_arg=scopes,
+                                          creds_arg=CREDS)
     return auth
 
 def set_up_config():
     """
     Create auth resources for testing
     """
-    config_path = util.full_path('src/config/main.yaml')
-    return src.configuration.Configuration(config_path=config_path)
+    return src.configuration.Configuration(config_path=CONFIG_PATH,
+                                           config_arg=CONFIG)
 
 def test_authenticator_type(auth):
     """
@@ -60,11 +73,11 @@ def test_get_config_from_instance(config):
     return config_settings
 
 def test_get_config_from_arg(config):
+    #LOCALIZED TEST ONLY
     """
     Tries to load config file from argument passed directly to load method
     """
-    config_path = util.full_path('src/config/main.yaml')
-    config_settings = config.get_config(path=config_path)
+    config_settings = config.get_config(path=CONFIG_PATH)
     assert isinstance(config_settings, dict)
     return config_settings
 

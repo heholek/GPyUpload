@@ -1,0 +1,108 @@
+% JuryAppointment Template
+% LaTeX Template
+% Version 1.0 (3/11/12)
+%
+% This template has been downloaded and modified from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Trey Hunner (http://www.treyhunner.com/)
+%
+% Additions by:
+% Aaron Grisez
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+% Important note:
+% This template requires the invoice.cls file to be in the same directory as 
+% the .tex file. The invoice.cls file provides the style used for structuring the
+% document.
+%
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT CONFIGURATION
+%----------------------------------------------------------------------------------------
+
+\documentclass{article} 
+\usepackage[landscape,hmargin=0.79in,vmargin=0.79in]{geometry}
+\usepackage[parfill]{parskip} % Do not indent paragraphs
+\usepackage{fp} % Fixed-point arithmetic
+\usepackage{calc} % Counters for totaling hours and cost
+\usepackage{longtable}
+
+\pagestyle{empty} % No page numbers
+\linespread{1.5} % Line spacing
+
+
+\def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTION
+%----------------------------------------------------------------------------------------
+
+\hfil{\Huge\bf Hall-Musco Conservatory Music Juries}\hfil
+\hrule % Horizontal line
+{\bf Jury Location:} \VAR{meta['location']} \\ % Date for the jury
+{\bf Date of Jury:}  \VAR{meta['date']} \\ % Date for the jury
+{\bf Report Generated:} \today \\ % Report Generated Date
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF Appointments
+%----------------------------------------------------------------------------------------
+\begin{center}
+
+\begin{longtable}{|l|l|l|l|l|l|l|l|l}
+
+% HEADER STUFF
+\caption{Here are all the appointments for today.} \label{tab:long} \\
+
+\hline \multicolumn{1}{|l|}{\textbf{Time}} &
+       \multicolumn{1}{l|}{\textbf{Student}} &
+       \multicolumn{1}{l|}{\textbf{Instrument}} &
+       \multicolumn{1}{l|}{\textbf{Class Standing}} &
+       \multicolumn{1}{l|}{\textbf{UDP}} &
+       \multicolumn{1}{l|}{\textbf{Phone}} &
+       \multicolumn{1}{l|}{\textbf{Major}} &
+       \multicolumn{1}{l|}{\textbf{Code}}
+       \\ \hline
+\endfirsthead
+
+\multicolumn{8}{c}%
+{{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+\hline \multicolumn{1}{|l|}{\textbf{Time}} &
+       \multicolumn{1}{l|}{\textbf{Student}} &
+       \multicolumn{1}{l|}{\textbf{Instrument}} &
+       \multicolumn{1}{l|}{\textbf{Class Standing}} &
+       \multicolumn{1}{l|}{\textbf{UDP}} &
+       \multicolumn{1}{l|}{\textbf{Phone}} &
+       \multicolumn{1}{l|}{\textbf{Major}} &
+       \multicolumn{1}{l|}{\textbf{Code}}
+       \\ \hline
+\endhead
+
+\hline \multicolumn{8}{|l|}{{Continued on next page}} \\ \hline
+\endfoot
+
+\hline \hline
+\endlastfoot
+% END OF HEADER STUFF
+
+\BLOCK{ for record in records}
+    \VAR{record['formattedTime']} &
+    \VAR{record['ApplicantName']} &
+    \VAR{record['instrument']} &
+    \VAR{record['classStanding']} & 
+    \VAR{record['UDP']} & 
+    \VAR{record['phone']} &
+    \VAR{record['majorDescription']} & 
+    \VAR{record['code']} \\
+\BLOCK{ endfor }
+\end{longtable}
+\end{center}
+%----------------------------------------------------------------------------------------
+
+\end{document}
+

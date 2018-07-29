@@ -1,9 +1,12 @@
 import main
+from src.models.JuryAppointment import JuryAppointment
 
 if __name__ == "__main__":
     app = main.App()
+    app.setModels([JuryAppointment])
     app.register_classes()
-    app.importData()
-    app.importer.load_files()
-    app.importer.load_spreadsheets()
-    app.importer.load_spreadsheet_values()
+    app.importData(exclusions=['MainSheet',
+                               'StudentResponses'],
+                   models=[JuryAppointment])
+    app.filemanager.exportModels(JuryAppointment)
+    #app.buildReports(JuryAppointment)

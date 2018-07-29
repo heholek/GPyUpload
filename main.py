@@ -1,8 +1,8 @@
 """
 Entrypoint and primary class for the application
-
-
 """
+
+import gspread
 import sys
 import os
 import pathlib as p
@@ -10,9 +10,13 @@ import src.UI
 import src.authenticate as a
 import src.configuration as c
 import src.importer as i
+import src.filemanager as f
 import src.requests as r
 import src.util as util
+import src.build as b
+import time
 import weakref
+from gspread.exceptions import APIError
 print("Imports Successful")
 
 class App():
@@ -20,7 +24,7 @@ class App():
     def __init__(self):
         ###Right now passing config_path to instance of configuration
         ###When installing, make a step to set an environment variable for this
-        pass
+        self.models = []
 
     def register_classes(self):
         config_path = util.full_path('src/config/main.yaml')
@@ -29,7 +33,6 @@ class App():
             if config_file.is_file():
                 print('Found config file, loading...')
                 self.config = c.Configuration(config_path, app=weakref.ref(self))
-            else:
         except OSError:
             try:
                 print('No config file found, installing...')
@@ -42,10 +45,15 @@ class App():
             sys.exit()
         self.config.load_config()
         print('Configuration Loaded')
+        app_ref = weakref.ref(self)
         self.auth = a.Authenticator(self.config.config['creds_path'],
                                     self.config.config['scopes'],
-                                    app=weakref.ref(self))
+                                    app=app_ref)
+        self.filemanager = f.FileManager(app=app_ref,
+                                         db_path=self.config.config['db_path'],
+                                         classes=self.models)
         self.auth.connect()
+        self.auth.authsession.refresh_token()
         prefixes_path = util.full_path('src/config/request_prefixes.yaml')
         self.requests = r.Requests(prefixes_path, app=weakref.ref(self))
         self.requests.build_base_requests(self.config.config['files'])
@@ -56,14 +64,25 @@ class App():
         """
         pass
 
-    def importData(self, **kwargs):
+    def setModels(self, models):
+        """
+        Sets classes contained in models directory to be used
+        """
+        for model in models:
+            self.models.append(model)
+
+    def importData(self, exclusions, models=[]):
         """
         Pulls remote data for reporting, stores it internally as a list of JuryRecord objects
         """
         self.importer = i.Importer(self.config.config['files'],
                                    app=weakref.ref(self))
+        self.importer.load_files()
+        self.importer.ingest_spreadsheets(exclusions=exclusions)
+        for model in models:
+            self.filemanager.buildModel(model)
 
-    def buildReports(self, buildOptions):
+    def buildReports(self, model, **kwargs):
         """
         Assembles reports and renders pdfs
 
@@ -71,7 +90,9 @@ class App():
 
         Iterate through self.allRecords and call BuildReport
         """
-        pass
+        for group in self.filemanager.model_groups[model.__name__]:
+            builder = b.ReportBuilder(model, group)
+            builder.run()
 
     def deliverReports(self, deliveryOptions):
         """

@@ -6,6 +6,7 @@ Contains class Authenticator which connects to Google Resources
 import json
 from google.oauth2 import service_account
 from google.auth.transport.requests import AuthorizedSession
+from authlib.client import AssertionSession
 
 class Authenticator():
     """
@@ -34,6 +35,7 @@ class Authenticator():
         scope_dict = scopes_arg
         for key, value in scopes_arg.items():
             self.scopes.append(value)
+        print(self.scopes)
         self.authsession = None # Need to run self.connect() to create session
 
     ###########################################################################
@@ -68,7 +70,36 @@ class Authenticator():
         self.load_credentials()
         return self.authsession
 
-    def load_credentials(self):
+    def load_credentials(self, subject=None):
+        #conf_file - creds file
+        #scopes
+        #subject?
+        with open(self.credentials_path, 'r') as f:
+            creds = json.load(f)
+
+        token_url = creds['token_uri']
+        issuer = creds['client_email']
+        key = creds['private_key']
+        key_id = creds.get('private_key_id')
+
+        header = {'alg': 'RS256'}
+        if key_id:
+            header['kid'] = key_id
+
+        # Google puts scope in payload
+        claims = {'scope': ' '.join(self.scopes)}
+        self.authsession = AssertionSession(
+            grant_type=AssertionSession.JWT_BEARER_GRANT_TYPE,
+            token_url=token_url,
+            issuer=issuer,
+            audience=token_url,
+            claims=claims,
+            subject=subject,
+            key=key,
+            header=header,
+        )
+
+    def load_credentials_old(self):
         """
         Loads credentials file through google-auth. See docs for details.
         DO NOT use Python Quickstart for Google APIs, documentation is
@@ -81,5 +112,5 @@ class Authenticator():
         elif self.credentials_path == None:
             temp = service_account.Credentials.from_service_account_info(
                 self.credentials_json)
-        creds = temp.with_scopes(self.scopes)
-        self.authsession = AuthorizedSession(creds)
+        self.creds = temp.with_scopes(self.scopes)
+        self.authsession = AuthorizedSession(self.creds)

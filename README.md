@@ -21,8 +21,8 @@ of that account's associated keys to connect this app to Google Cloud.
 
 ## Current Steps to Installation:
 1. In the `/src` directory, create a directory `/config`.
-    a. Create two .yaml files, one named `main.yaml` and one named `request_prefixes.yaml`.
-    b. You should put some default values in these files to make test.py run correctly.
+    * Create two .yaml files, one named `main.yaml` and one named `request_prefixes.yaml`.
+    * You should put some default values in these files to make test.py run correctly.
 
 ```yaml
 #main.yaml

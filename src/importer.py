@@ -145,6 +145,7 @@ class Importer():
         flags = []
         for i in os.listdir(flag_file_path):
             with open(flag_file_path + i) as f:
+                print(f)
                 flags.append(yaml.load(f))
         self.flags = flags
 

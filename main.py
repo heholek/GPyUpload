@@ -91,8 +91,8 @@ class App():
         Iterate through self.allRecords and call BuildReport
         """
         for group in self.filemanager.model_groups[model.__name__]:
-            builder = b.ReportBuilder(model, group)
-            builder.run()
+            self.builder = b.ReportBuilder(model, group)
+            self.builder.run()
 
     def deliverReports(self, deliveryOptions):
         """

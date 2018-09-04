@@ -9,4 +9,4 @@ if __name__ == "__main__":
                                'StudentResponses'],
                    models=[JuryAppointment])
     app.filemanager.exportModels(JuryAppointment)
-    #app.buildReports(JuryAppointment)
+    app.buildReports(JuryAppointment)

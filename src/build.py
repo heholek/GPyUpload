@@ -18,6 +18,7 @@ class ReportBuilder():
             self.meta = value
             self.group_name = key
             self.group = model.get_report_group(key)
+            self.group.sort()
             self.type = model.REPORT_TYPE
             self.template_name = model.TEMPLATE_NAME
             self.environment = Environment(
@@ -39,7 +40,7 @@ class ReportBuilder():
         Receives a report object and parses into the appropriate template
         """
         name = self.group_name
-        _file = open(name + 'report.tex', 'w+')
+        _file = open('build/' + name + 'report.tex', 'w+')
         _file.write(self.environment.get_template(self.template_name).render(meta=self.meta, records=self.group))
         _file.close()
 

@@ -35,7 +35,9 @@ class FileManager():
         for i in self.models[model.__name__]:
             temp = {}
             for j in i.__slots__:
-                if j != '__weakref__':
+                if j == 'datetime':
+                    temp[j] = getattr(i,j)
+                elif j != '__weakref__':
                     temp[j] = str(getattr(i,j))
             ormobject = model.ormobject(**temp)
             s.add(ormobject)

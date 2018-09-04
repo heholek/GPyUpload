@@ -1,6 +1,8 @@
-from ..util import search_records
+from ..util import search_records, zeropad_int_pairs
+import functools
+import datetime
 import weakref
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from .base import MetaBase
 
 """
@@ -29,6 +31,7 @@ class JuryAppointmentDB(MetaBase):
     majorDescription = Column(String)
     emphasis = Column(String)
     code = Column(String)
+    datetime = Column(DateTime)
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -42,7 +45,7 @@ class JuryAppointment(object):
     __slots__ = ('meta', 'record_group', 'formattedTime', 'instrument', 'User', 'firstname',
                 'lastname', 'ApplicantName', 'classStanding',
                 'seniorRecital', 'seniorRecitalYear', 'UDP', 'email', 'phone',
-                'majorDescription', 'emphasis', 'code', '__weakref__')
+                'majorDescription', 'emphasis', 'code', 'datetime', '__weakref__')
 
     _instances = set()
     REPORT_TYPE = 'aggregate' #Not individual reporting
@@ -59,7 +62,17 @@ class JuryAppointment(object):
             except AttributeError:
                 if key == 'Applicant Name':
                     self.ApplicantName = value
+        self.datetime = self.parse_date()
         self._instances.add(weakref.ref(self))
+
+    def parse_date(self):
+        year = str(datetime.date.today().year)
+        date = zeropad_int_pairs(self.meta['date'] + ', ' + year)
+        time = zeropad_int_pairs(self.formattedTime)
+        date_obj = datetime.datetime.strptime(date, '%A, %B %d, %Y')
+        time_obj = datetime.datetime.strptime(time, '%I:%M %p')
+        dt = datetime.datetime.combine(date_obj, time_obj.time())
+        return dt
 
     def as_list(self):
         temp = []
@@ -107,4 +120,14 @@ class JuryAppointment(object):
         row = self.app().spreadsheet_manager.row_values(located_record)
         return row['code']
 
+    def __eq__(self, other):
+        return self.id == other.id
 
+    def __hash__(self):
+        return id(self)
+
+    def __lt__(self, other):
+        if self.User == other.User and self.datetime == other.datetime:
+            raise ValueError('Someone is at two places at once')
+        else:
+            return self.datetime < other.datetime

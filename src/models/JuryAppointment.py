@@ -2,7 +2,7 @@ from ..util import search_records, zeropad_int_pairs
 import functools
 import datetime
 import weakref
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Text
 from .base import MetaBase
 
 """
@@ -32,6 +32,7 @@ class JuryAppointmentDB(MetaBase):
     emphasis = Column(String)
     code = Column(String)
     datetime = Column(DateTime)
+    response = Column(Text)
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -45,9 +46,10 @@ class JuryAppointment(object):
     __slots__ = ('meta', 'record_group', 'formattedTime', 'instrument', 'User', 'firstname',
                 'lastname', 'ApplicantName', 'classStanding',
                 'seniorRecital', 'seniorRecitalYear', 'UDP', 'email', 'phone',
-                'majorDescription', 'emphasis', 'code', 'datetime', '__weakref__')
+                'majorDescription', 'emphasis', 'code', 'datetime', 'response', '__weakref__')
 
     _instances = set()
+    _dead = set()
     REPORT_TYPE = 'aggregate' #Not individual reporting
     TEMPLATE_NAME = 'appointmentSchedule.tex'
     ormobject = JuryAppointmentDB
@@ -64,6 +66,7 @@ class JuryAppointment(object):
                     self.ApplicantName = value
         self.datetime = self.parse_date()
         self._instances.add(weakref.ref(self))
+        self.response = None
 
     def parse_date(self):
         year = str(datetime.date.today().year)
@@ -97,28 +100,12 @@ class JuryAppointment(object):
         """
         Yields all instances of JuryAppointment
         """
-        dead = set()
         for ref in cls._instances:
             obj = ref()
             if obj is not None:
                 yield obj
             else:
-                dead.add(ref)
-            cls._instances -= dead
-
-    @classmethod
-    def lookup_code(cls, record, target):
-        """
-        Looks up the information for a given record in the target spreadsheet,
-        should be attached to JuryAppointment class
-        """
-        try:
-            target_sheet = self.app().spreadsheet_manager.open(target)
-        except:
-            print('Could not open ' + target + ' spreadsheet')
-        located_record = search_records(target_sheet, record) # Row of most likely record
-        row = self.app().spreadsheet_manager.row_values(located_record)
-        return row['code']
+                cls._dead.add(ref)
 
     def __eq__(self, other):
         return self.id == other.id

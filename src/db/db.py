@@ -10,7 +10,7 @@ def create_db(path, models):
     Base.metadata.create_all()
     Session = sessionmaker(bind=eng)
     ses = Session
-    return ses
+    return ses, eng
 
 
 def connect_db(path):

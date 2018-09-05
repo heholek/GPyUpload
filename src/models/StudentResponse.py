@@ -3,8 +3,9 @@ Model for the student response information, to be joined with JuryAppointment
 """
 
 from ..util import search_records
+import datetime
 import weakref
-from sqlalchemy import Column, Integer, String, Timestamp, Text
+from sqlalchemy import Column, Integer, String, Text, DateTime
 from .base import MetaBase
 
 class StudentResponseDB(MetaBase):
@@ -12,7 +13,7 @@ class StudentResponseDB(MetaBase):
     __tablename__ = 'StudentResponse'
 
     id = Column(Integer, primary_key=True)
-    timestamp = Column(Timestamp)
+    timestamp = Column(String)
     email = Column(String)
     firstname = Column(String)
     lastname = Column(String)
@@ -29,6 +30,7 @@ class StudentResponseDB(MetaBase):
     is_primary = Column(String)
     date = Column(String)
     time = Column(String)
+    datetime = Column(DateTime)
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
@@ -38,11 +40,11 @@ class StudentResponseDB(MetaBase):
                 print(e)
                 print('Funkiness trying to set DB object attribute')
 
-class JuryAppointment(object):
+class StudentResponse(object):
     __slots__ = ('timestamp', 'email', 'firstname', 'lastname', 'student_id',
                  'primary_area', 'primary_inst_voice', 'program', 'purpose',
                  'instructor', 'repertoire', 'makeup', 'semester', 'year',
-                 'is_primary', 'date', 'time', '__weakref__')
+                 'is_primary', 'date', 'time', 'datetime', '__weakref__')
 
     _instances = set()
     REPORT_TYPE = 'individual' #Individual reporting
@@ -58,6 +60,7 @@ class JuryAppointment(object):
                 setattr(self, key, value)
             except AttributeError as e:
                 print(e)
+        self.parse_date()
         self._instances.add(weakref.ref(self))
 
     def as_list(self):
@@ -66,6 +69,17 @@ class JuryAppointment(object):
             if i != '__weakref__':
                 temp.append(str(getattr(self,i)))
         return temp
+
+    def parse_date(self):
+        month = int(self.date[0:2])
+        day = int(self.date[3:5])
+        year = int(self.date[6:10])
+        hour = int(self.time[0:2])
+        minute = int(self.time[3:5])
+        ampm = self.time[9:]
+        if ampm == 'PM':
+            hour += 12
+        self.datetime = datetime.datetime(year, month, day, hour, minute)
 
     @classmethod
     def get_report_group(cls, group):

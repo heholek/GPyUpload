@@ -1,0 +1,1 @@
+SELECT * FROM JuryAppointments JOIN StudentResponse ON JuryAppointments.email = StudentResponse.email AND JuryAppointments.datetime = StudentResponse.datetime

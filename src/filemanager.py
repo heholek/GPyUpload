@@ -10,22 +10,24 @@ class FileManager():
         self.models = {}
         self.db_path = db_path
         self.classes = classes
-        self.dbsession = create_db(self.db_path, self.classes)
+        self.dbsession, self.engine = create_db(self.db_path, self.classes)
 
     def buildModel(self, model):
-        model_objects = []
+        self.model_objects = []
         self.model_groups[model.__name__] = []
         for key, item in self.app().importer.sheets.items():
-            group = key
-            meta = {}
-            temp = [fields[0] for fields in item.items()]
-            for field in temp:
-                if field != 'records':
-                    meta[field] = item[field]
-            for record in item['records']:
-                model_objects.append(model(meta=meta, record_group=group, **record))
-            self.model_groups[model.__name__].append({group: meta})
-            self.models[model.__name__] = model_objects
+            if item['model'] == model.__name__:
+                group = key
+                meta = {}
+                temp = [fields[0] for fields in item.items()]
+                for field in temp:
+                    if field != 'records':
+                        meta[field] = item[field]
+                for record in item['records']:
+                    self.model_objects.append(model(meta=meta, record_group=group, **record))
+                self.model_groups[model.__name__].append({group: meta})
+                self.models[model.__name__] = self.model_objects
+                self.model_objects = []
 
     def exportModels(self, model):
         """
@@ -42,3 +44,15 @@ class FileManager():
             ormobject = model.ormobject(**temp)
             s.add(ormobject)
         s.commit()
+
+    def joinModels(self):
+        """
+        Joins the two table names given, hardcoded query for JuryAppointments
+        and Student Response
+        """
+        joined_models = []
+        with self.engine.connect() as con:
+            re = con.execute('SELECT * FROM JuryAppointments JOIN StudentResponse ON JuryAppointments.email = StudentResponse.email AND JuryAppointments.datetime = StudentResponse.datetime')
+            for row in re:
+                joined_models.append(row)
+        return joined_models

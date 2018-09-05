@@ -109,12 +109,15 @@ class Importer():
             self.current_worksheet = j
             for i in self.flags:
                 self.set_current_sheet_flags(i)
-                for flag_name, flag_dict in self.current_sheet_flags.items():
+                for flag_name, flag_content in self.current_sheet_flags.items():
                     self.set_current_sheet_flags(i)
-                    if flag_name != 'records':
-                        self.temp[flag_name] = self.run_flag(flag_name, flag_dict)
+                    if flag_name == 'model':
+                        self.temp[flag_name] = flag_content
+                    elif flag_name != 'records':
+                        self.temp[flag_name] = self.run_flag(flag_name,
+                                                             flag_content)
                     else:
-                        self.temp['records'] = self.run_flag_records(flag_dict,
+                        self.temp['records'] = self.run_flag_records(flag_content,
                                                         self.current_worksheet.title)
                 print('Set flag data for ' + j.title)
                 self.sheets[j.title] = self.temp
@@ -166,10 +169,8 @@ class Importer():
                 record['code'] = assign_code(record, k, self.temp['location'],
                                          sheet_title)
                 k += 1
-            #CAREFUL, this should only run AFTER codes have been generated.
-            else:
-                record['code'] = JuryAppointment.lookup_code(record, target='CodedAppointments')
         for j in sorted(deletions, reverse=True):
+            print('Deleting ' + str(j))
             del records[j]
         return records
 

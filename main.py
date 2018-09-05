@@ -80,6 +80,7 @@ class App():
         self.importer.load_files()
         self.importer.ingest_spreadsheets(exclusions=exclusions)
         for model in models:
+            print('Building Model ' + str(model))
             self.filemanager.buildModel(model)
 
     def buildReports(self, model, **kwargs):

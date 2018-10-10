@@ -5,8 +5,11 @@ Contains class Authenticator which connects to Google Resources
 #import google.auth
 import json
 from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import AuthorizedSession
-from authlib.client import AssertionSession
+from authlib.client import AssertionSession, OAuth2Session
+from googleapiclient.discovery import build
+import webbrowser
 
 class Authenticator():
     """
@@ -68,49 +71,53 @@ class Authenticator():
         Loads credentials file and builds dictionary of requests
         """
         self.load_credentials()
+        self.token = self.authsession.refresh_token(url='https://www.googleapis.com/oauth2/v3/token')
         return self.authsession
 
     def load_credentials(self, subject=None):
-        #conf_file - creds file
-        #scopes
-        #subject?
+        #Load items from file
         with open(self.credentials_path, 'r') as f:
             creds = json.load(f)
+        creds = creds['installed']
+        client_id = creds['client_id']
+        client_secret = creds['client_secret']
+        redirect_uri = creds['redirect_uris'][0]
+        token_uri = creds['token_uri']
+        authorize_url = creds['auth_uri']
 
-        token_url = creds['token_uri']
-        issuer = creds['client_email']
-        key = creds['private_key']
-        key_id = creds.get('private_key_id')
+        #Create Authorized Session
+        self.authsession = cls.create_authsession(client_id,
+                                                  client_secret,
+                                                  self.scopes,
+                                                  redirect_uri[0])
 
-        header = {'alg': 'RS256'}
-        if key_id:
-            header['kid'] = key_id
+        #Get Authorization URL
+        self.uri, self.state = self.authsession.authorization_url(authorize_url)
 
-        # Google puts scope in payload
-        claims = {'scope': ' '.join(self.scopes)}
-        self.authsession = AssertionSession(
-            grant_type=AssertionSession.JWT_BEARER_GRANT_TYPE,
-            token_url=token_url,
-            issuer=issuer,
-            audience=token_url,
-            claims=claims,
-            subject=subject,
-            key=key,
-            header=header,
+        #Open Authorization URL
+        webbrowser.open(self.uri)
+
+        #Get authorization Code
+        code = input('Please enter code...')
+        print('Using code ' + code)
+
+        #Get access token
+        self.token = self.authsession.fetch_access_token(url='https://www.googleapis.com/oauth2/v4/token',
+                                            code=code)
+
+        #Create Credentials Object
+        self.creds = Credentials(self.token['access_token'])
+
+        #Build Services
+        self.drive_service = build('drive', 'v3', credentials=self.creds)
+
+    @classmethod
+    def create_authsession(cls, client_id, client_secret, scope, redirect_uri):
+        return OAuth2Session(
+            client_id=client_id,
+            client_secret=client_secret,
+            scope=scope,
+            redirect_uri=redirect_uri
         )
 
-    def load_credentials_old(self):
-        """
-        Loads credentials file through google-auth. See docs for details.
-        DO NOT use Python Quickstart for Google APIs, documentation is
-        outdated and the oauth2client support is depricated
-        """
-        # Authorize the application to use Google APIs for Drive and Sheets.
-        if self.credentials_json == None:
-            temp = service_account.Credentials.from_service_account_file(
-                self.credentials_path)
-        elif self.credentials_path == None:
-            temp = service_account.Credentials.from_service_account_info(
-                self.credentials_json)
-        self.creds = temp.with_scopes(self.scopes)
-        self.authsession = AuthorizedSession(self.creds)
+

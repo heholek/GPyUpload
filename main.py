@@ -6,17 +6,14 @@ import gspread
 import sys
 import os
 import pathlib as p
-import src.UI
 import src.authenticate as a
 import src.configuration as c
 import src.importer as i
 import src.filemanager as f
 import src.requests as r
 import src.util as util
-import src.build as b
 import time
 import weakref
-from gspread.exceptions import APIError
 print("Imports Successful")
 
 class App():
@@ -53,10 +50,10 @@ class App():
                                          db_path=self.config.config['db_path'],
                                          classes=self.models)
         self.auth.connect()
-        self.auth.authsession.refresh_token()
         prefixes_path = util.full_path('src/config/request_prefixes.yaml')
         self.requests = r.Requests(prefixes_path, app=weakref.ref(self))
         self.requests.build_base_requests(self.config.config['files'])
+        self.requests.build_base_requests(self.config.config['directories'])
 
     def buildUI(self, uiOptions):
         """
@@ -75,13 +72,9 @@ class App():
         """
         Pulls remote data for reporting, stores it internally as a list of JuryRecord objects
         """
-        self.importer = i.Importer(self.config.config['files'],
+        self.directoryImporter = i.Importer(self.config.config['directories'],
                                    app=weakref.ref(self))
-        self.importer.load_files()
-        self.importer.ingest_spreadsheets(exclusions=exclusions)
-        for model in models:
-            print('Building Model ' + str(model))
-            self.filemanager.buildModel(model)
+        self.directoryImporter.load_directories()
 
     def buildReports(self, model, **kwargs):
         """

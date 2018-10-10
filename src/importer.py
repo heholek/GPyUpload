@@ -9,7 +9,7 @@ from .models.JuryAppointment import JuryAppointment
 
 class Importer():
 
-    def __init__(self, files_dict, app):
+    def __init__(self, items_dict, app):
         """
         Main Importing object, contains methods for fetching, importing,
         processing, and exporting data
@@ -28,52 +28,69 @@ class Importer():
             empty_records: any records deemed "empty" during processing
         """
         self.app = app
-        self.files = {}
-        self.sheets = {}
+        self.items = {}
         self.empty_records = []
         self.temp = {}
-        self.spreadsheet_manager = gspread.Client(None,
-                                                  self.app().auth.authsession)
-        #This loop builds up the dictionary of recognized files
-        for key, value in files_dict.items():
-            #Supported file types are 'sheets' for Google Sheets and generic
-            #drive file for anything else
+
+        #This loop builds up the dictionary of recognized items
+        for key, value in items_dict.items():
             if value['type'] == 'sheets':
                 #File is a spreadsheet
-                self.files[key] = Spreadsheet(_type=value['type'],
+                self.items[key] = Spreadsheet(_type=value['type'],
                                               _id=value['id'],
                                               contents=None,
                                               loaded=False,
                                               ingested=False,
                                               app=self.app)
-            else:
-                #File is anything else
-                self.files[key] = File(_type=value['type'],
+
+            elif value['type'] == 'folder':
+                #Item is a folder
+                self.items[key] = Directory(_type=value['type'],
                                        _id=value['id'],
                                        contents=None,
                                        loaded=False,
                                        ingested=False,
                                        app=self.app)
 
-    def load_files(self, exclusions=[]):
+            elif value['type'] == 'file':
+                #File is any other file
+                self.items[key] = File(_type=value['type'],
+                                       _id=value['id'],
+                                       contents=None,
+                                       loaded=False,
+                                       ingested=False,
+                                       app=self.app)
+
+
+            elif value['type'] == 'file':
+                #File is any other file
+                self.items[key] = File(_type=value['type'],
+                                       _id=value['id'],
+                                       contents=None,
+                                       loaded=False,
+                                       ingested=False,
+                                       app=self.app)
+
+    def load_directories(self, recursive=True, exclusions=[]):
         """
-        Makes initial GET requests for all recognized files in main.yaml
+        Makes initial GET requests for all recognized directories in main.yaml
 
         Parameters:
-            exclusions: list of files to ignore during loading. Exclusions are
+            exclusions: list of directories to ignore during loading. Exclusions are
             referenced by key (that is, their name in main.yaml)
         """
         #Loop through all recognized files
-        for key, _file in self.files.items():
+        for key, _directory in self.items.items():
             #Check if file is loaded and not in exclusions
-            if not _file.loaded and key not in exclusions:
+            if not _directory.loaded and key not in exclusions:
                 app = self.app() #Loads app from weakref
                 #Requests are stored in the main app
                 request = app.requests.requests[key]
+                print(request)
                 #Load file contents
                 contents = app.auth.make_get_request(request=request)
-                _file.contents = contents
-                _file.loaded = True
+                _directory.contents = contents
+                _directory.loaded = True
 
     def ingest_spreadsheets(self, exclusions=[]):
         """
@@ -212,6 +229,12 @@ class Importer():
 
 ####CODE BELOW THIS LINE SHOULD BE REFACTORED
 class File(object):
+    __slots__ = '_type', '_id', 'contents', 'loaded', 'ingested', 'app'
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+class Directory(object):
     __slots__ = '_type', '_id', 'contents', 'loaded', 'ingested', 'app'
     def __init__(self, **kwargs):
         for key, value in kwargs.items():

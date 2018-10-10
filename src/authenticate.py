@@ -86,10 +86,10 @@ class Authenticator():
         authorize_url = creds['auth_uri']
 
         #Create Authorized Session
-        self.authsession = cls.create_authsession(client_id,
+        self.authsession = self.create_authsession(client_id,
                                                   client_secret,
                                                   self.scopes,
-                                                  redirect_uri[0])
+                                                  redirect_uri)
 
         #Get Authorization URL
         self.uri, self.state = self.authsession.authorization_url(authorize_url)

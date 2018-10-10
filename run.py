@@ -1,8 +1,6 @@
 import main
 import os
 import json
-from src.models.JuryAppointment import JuryAppointment
-from src.models.StudentResponse import StudentResponse
 from apiclient.http import MediaFileUpload
 
 UPLOADS_PATH = 'src/uploads/'

@@ -2,7 +2,6 @@
 Entrypoint and primary class for the application
 """
 
-import gspread
 import sys
 import os
 import pathlib as p

@@ -5,7 +5,6 @@ from .util import full_path, assign_code, search_records
 import yaml
 from ast import literal_eval
 import weakref
-from .models.JuryAppointment import JuryAppointment
 
 class Importer():
 

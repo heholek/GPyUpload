@@ -3,6 +3,7 @@ This single script gathers all the Class tests and prepares them for
 execution. TODO: Get this darned thing into a nosetest suite, stat
 """
 
+import authlib
 import os
 import google.auth
 import src.authenticate
@@ -10,6 +11,7 @@ import src.configuration
 import src.util as util
 import main
 
+AssertionSessionClass = authlib.client.AssertionSession
 AuthsessionClass = google.auth.transport.requests.AuthorizedSession
 
 TEST_ENVIRONMENT = os.environ['GPYREPORT_TEST_ENVIRONMENT']
@@ -42,6 +44,14 @@ def set_up_config():
                                            config_arg=CONFIG)
 
 def test_authenticator_type(auth):
+    """
+    Gets passed Authenticator instance and runs the connect() method
+    """
+    authsession = auth.connect()
+    assert isinstance(authsession, AssertionSessionClass)
+    return authsession
+
+def test_authenticator_type_old(auth):
     """
     Gets passed Authenticator instance and runs the connect() method
     """

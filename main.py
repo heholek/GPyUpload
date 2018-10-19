@@ -45,9 +45,9 @@ class App():
         self.auth = a.Authenticator(self.config.config['creds_path'],
                                     self.config.config['scopes'],
                                     app=app_ref)
-        self.filemanager = f.FileManager(app=app_ref,
-                                         db_path=self.config.config['db_path'],
-                                         classes=self.models)
+#        self.filemanager = f.FileManager(app=app_ref,
+#                                         db_path=self.config.config['db_path'],
+#                                         classes=self.models)
         self.auth.connect()
         prefixes_path = util.full_path('src/config/request_prefixes.yaml')
         self.requests = r.Requests(prefixes_path, app=weakref.ref(self))

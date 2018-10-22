@@ -1,32 +1,59 @@
 # GPyReport 
 
-### NOTE
-GitHub migration seems to have disrupted a pull request to merge "borecki" with master. Please visit that branch for the most current code.
+This is an in-progress script to automate uploading documents to Google Drive. Currently it does 2 things:
+1. Uploads all files contained in the `uploads` directory to the authenticated Google account's connected Google Drive.
+2. Sorts the files into PRE-EXISTING subdirectories where the subdirectory name is a substring of the filename
+	(e.g.: A file named `awesome_file.txt` would be sorted into the directory named `awesome` IF `awesome` was a pre-existing subdirectory in the user's Google drive.)
 
-This project is very early in development. I haven't yet created installation
-scripts. For the time being, you can use the following procedure to jig up an
-installation
+## Getting Started
 
-- In a new virtualenv, run 
+### Prerequisites
+You will need an OAuth ID ("other"-type app) from your Google Cloud dashboard. See [this page](https://cloud.google.com/docs/authentication/end-user) for more details. Specifically, you need the `client-secret.json` file described in "Creating your client credentials" step 6. That file will go in the `creds` directory and get pointed to during installation.
+
+### Installation
+Run the installation script with
+
 ```
-pip install -r requirements.txt
+bash install.sh
 ```
 
-- If you don't already have your own client.json file:
-	1. Go to console.cloud.google.com
-	2. Make sure you're logged in with your account (or whatever Google account is linked to the drive you want to upload to).
-	3. You can either create a project or not, I would suggest creating one just to compartmentalize things. You can do this from 'Select a project' in the top left corner.
-	4. Navigate to APIs/Services -> Library
-	5. Search for and activate the Google Drive API
-	6. Navigate to APIs/Services -> Credentials
-	7. Create new credentials
-		a. Select OAuth client ID
-		b. Select 'Other' application type
-		c. Follow the wizard
-	8. Download the new credentials json file (download button all the way on the right of the screen)
-	9. Put this file in the appropriate creds folder in `src` and rename it `client.json`.
+and follow the prompts on the screen. If you encounter any errors you can't resolve, please open an issue!
 
-- In `main.yaml`, ignore everything else except what's under `directories`. The first directory you see there is the root directory in your google drive. You can name it as you please. Get the id for that file from google drive in your browser. Copy this id to `main.yaml`.
-- Make sure that the `CREDS_PATH` item in `main.yaml` points to the new credentials file.
+## Files
+`README.md` - this file  
+`LICENSE` - the MIT license for this project  
+`install.sh` - BASH installation script, run during setup 
+`main.py` - core app initialization 
+`planningNotes.md` - a scratchpad for future/in progress features 
+`requirements.txt` - pip requirements 
+`run.py` - upload script 
+`test.py` - the beginnings of a test framework 
+`src` - source files 
+* `authenticate.py` - class for Google authentication, generates authorized REST requests
+* `configuration.py` - configuration class for application
+* `importer.py` - file importer class
+* `requests.py` - class that contains REST requests for the application
+* `util.py` - generic utility functions
+* `config` - contains configuration files
+	* `main.yaml` - main configuration file 
+* `creds` - contains credential files
+	* `client.json` - main credentials file
+* `uploads` - container for items to be uploaded to Google drive
 
-- Now, you can run the script. The current `run.py` script (with appropriate commented out blocks) will automatically upload any items in `src/uploads` to the corresponding directory in your Google Drive if (1) the filename contains as a substring the name of the corresponding directory and (2) that directory is a child of the root folder you defined in `main.yaml`.
+## Testing - TODO, URGENT
+
+I will be implementing a nosetests suite as my next task on this project.
+
+# Contributing
+
+Still working on setting up Contribution guidelines, but feel free to open issues in the meantime!
+
+## Maintainers
+
+The current maintainers of this repository are:
+
+* **Aaron Grisez** - [Aaron Grisez](https://github.com/aarongrisez)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

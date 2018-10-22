@@ -22,13 +22,13 @@ and follow the prompts on the screen. If you encounter any errors you can't reso
 ## Files
 `README.md` - this file  
 `LICENSE` - the MIT license for this project  
-`install.sh` - BASH installation script, run during setup
-`main.py` - core app initialization
-`planningNotes.md` - a scratchpad for future/in progress features
-`requirements.txt` - pip requirements
-`run.py` - upload script
-`test.py` - the beginnings of a test framework
-`src` - source files
+`install.sh` - BASH installation script, run during setup 
+`main.py` - core app initialization 
+`planningNotes.md` - a scratchpad for future/in progress features 
+`requirements.txt` - pip requirements 
+`run.py` - upload script 
+`test.py` - the beginnings of a test framework 
+`src` - source files 
 * `authenticate.py` - class for Google authentication, generates authorized REST requests
 * `configuration.py` - configuration class for application
 * `importer.py` - file importer class

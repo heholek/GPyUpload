@@ -1,4 +1,8 @@
 # GPyReport 
+
+### NOTE
+GitHub migration seems to have disrupted a pull request to merge "borecki" with master. Please visit that branch for the most current code.
+
 This project is very early in development. I haven't yet created installation
 scripts. For the time being, you can use the following procedure to jig up an
 installation

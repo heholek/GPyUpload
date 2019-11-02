@@ -1,0 +1,3 @@
+# i'm just trying to figure out how git works
+
+# is this even the right symbol to comment? well it's a text file... hmmm.... i'm learning.....

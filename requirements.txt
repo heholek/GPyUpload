@@ -35,5 +35,5 @@ SQLAlchemy==1.2.10
 uncompyle6==3.2.3
 uritemplate==3.0.0
 urllib3==1.24.2
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 xdis==3.8.6
